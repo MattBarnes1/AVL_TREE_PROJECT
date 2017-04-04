@@ -172,11 +172,7 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 		remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->left, Value);
 		if (LocalLast)
 		{
-			if (*LastToTakeALeft)
-			{
-				if (**LastToTakeALeft != 0)
-				{
-						if ((*WhyGodWhy) == (**LastToTakeALeft)) //We've returned to a working return; Have deleted the proper value (otherwise returns null);
+			if ((*WhyGodWhy) == (**LastToTakeALeft)) //We've returned to a working return; Have deleted the proper value (otherwise returns null);
 						{
 							AVLNode ** Parent = *LastToTakeALeft;
 							LastToTakeALeft = LocalLast;
@@ -195,10 +191,11 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 							}
 						}
 					
-				}
+				} else {
+				**LastToTakeALeft = null;
 			}
+		
 		}
-	}
 	}
 	else if ((*WhyGodWhy)->Value < Value)
 	{
