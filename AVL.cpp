@@ -154,26 +154,23 @@ int AVL::checkBalance(AVLNode* n) {
 
 }
 
-void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode **WhyGodWhy, int Value, bool &forcereturn)
+void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode **WhyGodWhy, int Value)
 {
 	AVLNode ***LocalLast = 0;
-	if (!(*WhyGodWhy))
+
+	if ((*WhyGodWhy)->Value > Value)
 	{
-		forcereturn = true;
-		return;
-	}
-	else if ((*WhyGodWhy)->Value > Value)
-	{
-		if (LastToTakeALeft != 0)
-			LocalLast = LastToTakeALeft; //Saves the pointer
-		LastToTakeALeft = &WhyGodWhy;
+		LocalLast = LastToTakeALeft; //Saves the pointer by passing this one
+ 		LastToTakeALeft = &WhyGodWhy;
 		bool areturn = false;
-		remove(LastToTakeALeft, &(*WhyGodWhy), &(*WhyGodWhy)->left, Value, forcereturn);
-		if (forcereturn)
+		if(!(&(*WhyGodWhy)->left))
 		{
-			return;
-		}
-		if (LastToTakeALeft)
+			**LastToTakeALeft = 0;
+			LocalLast = 0;
+
+		} else {
+		remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->left, Value);
+		if (LocalLast)
 		{
 			if (*LastToTakeALeft)
 			{
@@ -186,7 +183,7 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 
 
 							bool areturn = false;
-							remove(LocalLast, Parent, &(*Parent), ((*Parent)->left)->Value, forcereturn);		
+							remove(LocalLast, Parent, &(*Parent), ((*Parent)->left)->Value);		
 							if (forcereturn)
 							{
 								return;
@@ -202,35 +199,30 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 			}
 		}
 	}
+	}
 	else if ((*WhyGodWhy)->Value < Value)
 	{
-		if (LastToTakeALeft != 0)
-			LocalLast = LastToTakeALeft;
-		remove(LastToTakeALeft, &(*WhyGodWhy), &(*WhyGodWhy)->right, Value, forcereturn);
-		if (forcereturn)
+		LocalLast = LastToTakeALeft;
+		if(!(&(*WhyGodWhy)->right))
 		{
-			return;
-		}
-		if (LastToTakeALeft)
+			**LastToTakeALeft = 0;
+			LocalLast = 0;
+
+		} else {
+		remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->right, Value);
+		if (LocalLast)
 		{
-			if (*LastToTakeALeft)
-			{
 				if (*WhyGodWhy == **LastToTakeALeft) //We've returned to a working return; Have deleted the proper value (otherwise returns null);
 				{
-					AVLNode ** Parent = *LastToTakeALeft;
-					//*LastToTakeALeft = *LocalLast;
-					remove(LastToTakeALeft, Parent, &(*Parent)->left, ((*Parent)->left)->Value, forcereturn);
-					if (forcereturn)
-					{
-						return;
-					}
-					if (LastToTakeALeft != 0)
+					remove(LocalLast, Parent, &(*Parent)->left, ((*Parent)->left)->Value);
+					if (LocalLast != 0)
 					{
 						LastToTakeALeft = LocalLast;
 					}
 				}
-			}
+			
 		}
+	}
 	}
 	else //Values Match
 	{
