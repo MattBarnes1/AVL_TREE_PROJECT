@@ -9,7 +9,7 @@ private:
 	void clear(AVLNode **WhyGodWhy);
 	AVLNode *root;
 	void insert(AVLNode **WhyGodWhy, int Value);
-	void remove(AVLNode ***, AVLNode **WhyGodWhyParent, AVLNode **WhyGodWhy, int Value, bool&);
+	void remove(AVLNode ***, AVLNode **WhyGodWhyParent, AVLNode **WhyGodWhy, int Value);
 	void serialize(std::stringstream& s, AVLNode** NextValue);
 	void updateHeight(AVLNode *);
 	int checkBalance(AVLNode *);

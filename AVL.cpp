@@ -1,7 +1,7 @@
-
-#include "stdafx.h"
 #include "AVL.h"
 #include "AVLNode.h"
+
+#include <cstdlib>
 #include <algorithm>
 #include <iostream>
 #include <string>
@@ -54,7 +54,7 @@ void AVL::remove(int anIntToRemove)
 {
 	AVLNode*** Right = 0;
 	bool end = false;
-	remove(Right, &root, &root, anIntToRemove, end);
+	remove(Right, &root, &root, anIntToRemove);
 }
 
 
@@ -180,19 +180,16 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 
 							bool areturn = false;
 							remove(LocalLast, Parent, &(*Parent), ((*Parent)->left)->Value);		
-							if (forcereturn)
-							{
-								return;
-							}
+							
 							
 							if (LocalLast != 0)
 							{
-								LastToTakeALeft = LocalLast;
+								LastToTakeALeft = LocalLast; //reorders and returns
 							}
 						}
 					
 				} else {
-				**LastToTakeALeft = null;
+				**LastToTakeALeft = 0;
 			}
 		
 		}
@@ -209,9 +206,10 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 		remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->right, Value);
 		if (LocalLast)
 		{
+				AVLNode *** Parent = LastToTakeALeft;
 				if (*WhyGodWhy == **LastToTakeALeft) //We've returned to a working return; Have deleted the proper value (otherwise returns null);
 				{
-					remove(LocalLast, Parent, &(*Parent)->left, ((*Parent)->left)->Value);
+					remove(LocalLast, Parent, &(**Parent)->left, (&(**Parent)->left)->Value);
 					if (LocalLast != 0)
 					{
 						LastToTakeALeft = LocalLast;
