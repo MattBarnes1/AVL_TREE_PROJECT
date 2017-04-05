@@ -1,3 +1,4 @@
+
 #include "AVL.h"
 #include "AVLNode.h"
 
@@ -54,7 +55,9 @@ void AVL::remove(int anIntToRemove)
 {
 	AVLNode*** Right = 0;
 	bool end = false;
-	remove(Right, &root, &root, anIntToRemove);
+	AVLNode **newRoot = 0;
+	newRoot = &root;
+	remove(Right, newRoot, newRoot, anIntToRemove);
 }
 
 
@@ -106,7 +109,7 @@ void AVL::insert(AVLNode **WhyGodWhy, int aValue)//WhyGodWhy is always the prior
 		if (checkBalance((*WhyGodWhy)->left) < 0)
 		{
 			rotateLeft(&(*WhyGodWhy)->left, &((*WhyGodWhy)->left)->right);
-		
+
 			rotateRight(WhyGodWhy, &(*WhyGodWhy)->left);
 		}
 		else {
@@ -125,7 +128,7 @@ void AVL::rotateLeft(AVLNode **newParent, AVLNode **anImbalancedNode)
 	*newParent = *anImbalancedNode;
 	oldParentSwap->right = (*newParent)->left;
 	(*newParent)->left = oldParentSwap;
-	
+
 
 
 
@@ -157,67 +160,106 @@ int AVL::checkBalance(AVLNode* n) {
 void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode **WhyGodWhy, int Value)
 {
 	AVLNode ***LocalLast = 0;
-
-	if ((*WhyGodWhy)->Value > Value)
+	if (*WhyGodWhy == 0 || *WhyGodWhyParent == 0)
 	{
-		LocalLast = LastToTakeALeft; //Saves the pointer by passing this one
- 		LastToTakeALeft = &WhyGodWhy;
-		bool areturn = false;
-		if(!(&(*WhyGodWhy)->left))
+		return;
+	}
+	else if ((*WhyGodWhy)->Value > Value)
+	{
+
+		if (!*(&(*WhyGodWhy)->left))
 		{
-			**LastToTakeALeft = 0;
+			if (LastToTakeALeft)
+			{
+				if (*LastToTakeALeft)
+				{
+					//if (**LastToTakeALeft)
+					//{
+					//	**LastToTakeALeft = 0;
+					//}
+					*LastToTakeALeft = 0;
+				}
+			}
+			LastToTakeALeft = 0;
 			LocalLast = 0;
 
-		} else {
-		remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->left, Value);
-		if (LocalLast)
-		{
-			if ((*WhyGodWhy) == (**LastToTakeALeft)) //We've returned to a working return; Have deleted the proper value (otherwise returns null);
+		}
+		else {
+			LocalLast = &WhyGodWhy; //Saves the pointer LastToTakeALeft by passing this one instead
+			//LastToTakeALeft = &WhyGodWhy;
+			remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->left, Value);
+			if (LocalLast)
+			{
+				if (*LocalLast)
+				{
+					if (LastToTakeALeft && WhyGodWhy)
+					{
+						if (*LastToTakeALeft)
 						{
-							AVLNode ** Parent = *LastToTakeALeft;
-							LastToTakeALeft = LocalLast;
-
-
-							bool areturn = false;
-							remove(LocalLast, Parent, &(*Parent), ((*Parent)->left)->Value);		
-							
-							
-							if (LocalLast != 0)
+							if ((*WhyGodWhy) == (**LastToTakeALeft)) //We've returned to a working return; Have deleted the proper value (otherwise returns null);
 							{
-								LastToTakeALeft = LocalLast; //reorders and returns
+								AVLNode ** Parent = *LastToTakeALeft;
+								**LastToTakeALeft = **LocalLast;
+
+
+								bool areturn = false;
+								remove(LocalLast, Parent, &(*Parent), ((*Parent)->left)->Value);
+
+
+								if (LocalLast != 0)
+								{
+									LastToTakeALeft = LocalLast; //reorders and returns
+								}
 							}
 						}
-					
-				} else {
-				**LastToTakeALeft = 0;
+					}
+				}
+
 			}
-		
+			else if (LastToTakeALeft) {
+				*LastToTakeALeft = 0;
+			}
+
 		}
 	}
 	else if ((*WhyGodWhy)->Value < Value)
 	{
-		LocalLast = LastToTakeALeft;
-		if(!(&(*WhyGodWhy)->right))
+		if (!*(&(*WhyGodWhy)->right))
 		{
-			**LastToTakeALeft = 0;
+			if (LastToTakeALeft)
+			{
+				if (*LastToTakeALeft)
+				{
+					//if (**LastToTakeALeft)
+					//{
+					//	**LastToTakeALeft = 0;
+					//}
+					*LastToTakeALeft = 0;
+				}
+			}
+			LastToTakeALeft = 0;
 			LocalLast = 0;
 
-		} else {
-		remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->right, Value);
-		if (LocalLast)
-		{
-				AVLNode *** Parent = LastToTakeALeft;
+		}
+		else {
+			remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->right, Value);
+			if (LocalLast)
+			{
+				AVLNode ** Parent = *LastToTakeALeft;
 				if (*WhyGodWhy == **LastToTakeALeft) //We've returned to a working return; Have deleted the proper value (otherwise returns null);
 				{
-					remove(LocalLast, Parent, &(**Parent)->left, (&(**Parent)->left)->Value);
+					remove(LocalLast, Parent, &(*Parent), ((*Parent)->left)->Value);
 					if (LocalLast != 0)
 					{
 						LastToTakeALeft = LocalLast;
 					}
 				}
-			
+
+			}
+			else if (LastToTakeALeft){
+				*LastToTakeALeft = 0;
+			}
 		}
-	}
 	}
 	else //Values Match
 	{
@@ -229,7 +271,7 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 				(*WhyGodWhy)->left = 0;//prolly unecessary
 				delete *WhyGodWhy;
 				*WhyGodWhy = Temp;
-				if(LastToTakeALeft != 0) *LastToTakeALeft = 0;
+				if (LastToTakeALeft != 0) *LastToTakeALeft = 0;
 			}
 			else if ((*WhyGodWhy)->right != 0) {
 				AVLNode *Temp = (*WhyGodWhy)->right;
@@ -281,40 +323,43 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 			}
 		}
 	}
-	
+
 
 	if (WhyGodWhy)
 	{
-		updateHeight(*WhyGodWhy); 
+		updateHeight(*WhyGodWhy);
 	}
-	updateHeight(*WhyGodWhyParent); 
-	int Balance = checkBalance(*WhyGodWhyParent);
-	if (Balance < -1)
-	{
-		if (checkBalance((*WhyGodWhyParent)->right) > 0)
+	//if (*WhyGodWhyParent)
+	//{
+		updateHeight(*WhyGodWhyParent);
+		int Balance = checkBalance(*WhyGodWhyParent);
+		if (Balance < -1)
 		{
-			rotateRight(&(*WhyGodWhyParent)->right, &(*WhyGodWhyParent)->right->left);
-			rotateLeft(WhyGodWhyParent, &(*WhyGodWhyParent)->right);
-		}
-		else {
-			rotateLeft(WhyGodWhyParent, &(*WhyGodWhyParent)->right);
-		}
+			if (checkBalance((*WhyGodWhyParent)->right) > 0)
+			{
+				rotateRight(&(*WhyGodWhyParent)->right, &(*WhyGodWhyParent)->right->left);
+				rotateLeft(WhyGodWhyParent, &(*WhyGodWhyParent)->right);
+			}
+			else {
+				rotateLeft(WhyGodWhyParent, &(*WhyGodWhyParent)->right);
+			}
 
-	}
-	else if (Balance > 1)
-	{
-		if (checkBalance((*WhyGodWhyParent)->left) < 0)
+		}
+		else if (Balance > 1)
 		{
-			rotateLeft(&(*WhyGodWhyParent)->left, &((*WhyGodWhyParent)->left)->right);
-			rotateRight(WhyGodWhyParent, &(*WhyGodWhyParent)->left);
+			if (checkBalance((*WhyGodWhyParent)->left) < 0)
+			{
+				rotateLeft(&(*WhyGodWhyParent)->left, &((*WhyGodWhyParent)->left)->right);
+				rotateRight(WhyGodWhyParent, &(*WhyGodWhyParent)->left);
+			}
+			else {
+				rotateRight(WhyGodWhyParent, &(*WhyGodWhyParent)->left);
+			}
 		}
-		else {
-			rotateRight(WhyGodWhyParent, &(*WhyGodWhyParent)->left);
-		}
-	}
+	//}
 }
 
-void AVL::findInOrderSuccessor(AVLNode **retPointer, AVLNode **Parent )//Do last successor thing here as well.
+void AVL::findInOrderSuccessor(AVLNode **retPointer, AVLNode **Parent)//Do last successor thing here as well.
 {
 	if ((*Parent)->left)
 	{
