@@ -1,7 +1,7 @@
 
 #include "AVL.h"
 #include "AVLNode.h"
-
+#include <cassert>
 #include <cstdlib>
 #include <algorithm>
 #include <iostream>
@@ -67,39 +67,48 @@ void AVL::insert(AVLNode **WhyGodWhy, int aValue)//WhyGodWhy is always the prior
 	AVLNode *Child = 0;
 	if (!(*WhyGodWhy))
 	{
-		Parent = (*WhyGodWhy);
+		//std::cout << " Before *WhyGodWhy: " << *WhyGodWhy;
+		//std::cout << " Before WhyGodWhy: " << WhyGodWhy;
+		assert(*WhyGodWhy == 0);
+		//assert(WhyGodWhy != 0);
 		*WhyGodWhy = new AVLNode(aValue);
+		//WhyGodWhy = 0;
+		//delete WhyGodWhy;
+		//std::cout << " after *WhyGodWhy: " << *WhyGodWhy;
+		//std::cout << " After WhyGodWhy: " << WhyGodWhy;
 		updateHeight(*WhyGodWhy);
-		Child = (*WhyGodWhy);
 		return;
 	}
 	else if ((*WhyGodWhy)->Value < aValue)
 	{ //Parent of our node so 02 in example when inserting 3
-		Parent = (*WhyGodWhy);
 		insert(&(*WhyGodWhy)->right, aValue);
 		Child = (*WhyGodWhy)->right;
 	}
 	else if ((*WhyGodWhy)->Value > aValue)
 	{
-		Parent = (*WhyGodWhy);
 		insert(&(*WhyGodWhy)->left, aValue);
 		Child = (*WhyGodWhy)->left;
 	}
 	updateHeight(*WhyGodWhy);
 	if (Child == 0) return;
+	//std::cout << Child;
 	updateHeight(Child);
+	Child = 0;
 	int Balance = checkBalance(*WhyGodWhy);
 	if (Balance < -1)
 	{
 		if (checkBalance((*WhyGodWhy)->right) > 0)
 		{
 			//std::cout << "Before Rotations: " << serialize() << std::endl;
+			std::cout << "Rotate Right: "  << std::endl;
 			rotateRight(&(*WhyGodWhy)->right, &(*WhyGodWhy)->right->left);
 			//std::cout << "After Right Rotation" << serialize() << std::endl;
 			rotateLeft(WhyGodWhy, &(*WhyGodWhy)->right);
+			std::cout << "Rotate left: "  << std::endl;
 			//std::cout << "After Left Rotation" << serialize() << std::endl;
 		}
 		else {
+			std::cout << "Rotate left: "  << std::endl;
 			rotateLeft(WhyGodWhy, &(*WhyGodWhy)->right);
 		}
 
@@ -108,11 +117,14 @@ void AVL::insert(AVLNode **WhyGodWhy, int aValue)//WhyGodWhy is always the prior
 	{
 		if (checkBalance((*WhyGodWhy)->left) < 0)
 		{
+			std::cout << "Rotate Left: " << std::endl;
 			rotateLeft(&(*WhyGodWhy)->left, &((*WhyGodWhy)->left)->right);
+			std::cout << "Rotate right: "  << std::endl;
 
 			rotateRight(WhyGodWhy, &(*WhyGodWhy)->left);
 		}
 		else {
+			std::cout << "Rotate right: "  << std::endl;
 			rotateRight(WhyGodWhy, &(*WhyGodWhy)->left);
 		}
 	}
@@ -188,6 +200,7 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 			LocalLast = &WhyGodWhy; //Saves the pointer LastToTakeALeft by passing this one instead
 			//LastToTakeALeft = &WhyGodWhy;
 			remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->left, Value);
+			//rebalancePointers(WhyGodWhy, &((*WhyGodWhy)->left));
 			if (LocalLast)
 			{
 				if (*LocalLast)
@@ -243,6 +256,7 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 		}
 		else {
 			remove(LocalLast, &(*WhyGodWhy), &(*WhyGodWhy)->right, Value);
+			//rebalancePointers(WhyGodWhy, &(*WhyGodWhy)->right);
 			if (LocalLast)
 			{
 				AVLNode ** Parent = *LastToTakeALeft;
@@ -310,6 +324,9 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 				{
 					updateHeight((*WhyGodWhy)->left);
 				}
+				myRight = 0;
+				myLeft = 0;
+				
 				if (LastToTakeALeft != 0)  *LastToTakeALeft = 0;
 			}
 			else { //Jesus, no!
@@ -320,6 +337,8 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 				*WhyGodWhy = new AVLNode((**LastToTakeALeft)->Value);
 				(*WhyGodWhy)->left = myLeft;
 				(*WhyGodWhy)->right = myRight;
+				myRight = 0;
+				myLeft = 0;
 			}
 		}
 	}
@@ -337,10 +356,15 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 		{
 			if (checkBalance((*WhyGodWhyParent)->right) > 0)
 			{
+
+			std::cout << "Rotate Right: "  << std::endl;
 				rotateRight(&(*WhyGodWhyParent)->right, &(*WhyGodWhyParent)->right->left);
+
+			std::cout << "Rotate Left: "  << std::endl;
 				rotateLeft(WhyGodWhyParent, &(*WhyGodWhyParent)->right);
 			}
 			else {
+			std::cout << "Rotate Left: "  << std::endl;
 				rotateLeft(WhyGodWhyParent, &(*WhyGodWhyParent)->right);
 			}
 
@@ -349,10 +373,14 @@ void AVL::remove(AVLNode ***LastToTakeALeft, AVLNode **WhyGodWhyParent, AVLNode 
 		{
 			if (checkBalance((*WhyGodWhyParent)->left) < 0)
 			{
+			std::cout << "Rotate Left: "  << std::endl;
 				rotateLeft(&(*WhyGodWhyParent)->left, &((*WhyGodWhyParent)->left)->right);
+			std::cout << "Rotate rightt: "  << std::endl;
 				rotateRight(WhyGodWhyParent, &(*WhyGodWhyParent)->left);
 			}
 			else {
+
+				std::cout << "Rotate Right: "  << std::endl;
 				rotateRight(WhyGodWhyParent, &(*WhyGodWhyParent)->left);
 			}
 		}
@@ -366,14 +394,33 @@ void AVL::findInOrderSuccessor(AVLNode **retPointer, AVLNode **Parent)//Do last 
 		findInOrderSuccessor(retPointer, &(*Parent)->left);
 		if ((*Parent)->left == *retPointer)
 		{
+			
 			if ((*retPointer)->right)
 			{
+				std::cout << "Does Right Pointer stuff" << std::endl;
 				(*Parent)->left = (*retPointer)->right;
 				(*retPointer)->right = 0;
 			}
 			else {
+				std::cout << "Does Left Pointer stuff" << std::endl;
+				if((*Parent)->left != 0)
+				{
+					if((*Parent)->left->left != 0)
+					{
+						std::cout << "failure point Val: " << ((*Parent)->left->left)->Value << std::endl;
+					}
+
+					if((*Parent)->left->right != 0)
+					{
+						std::cout << "failure point Val: " << ((*Parent)->left->right)->Value<< std::endl;
+					}
+					std::cout << "failure point Val: " << ((*Parent)->left)->Value<< std::endl;
+				}
+				
 				(*Parent)->left = 0;
 			}
+		assert(((*retPointer)->right) == 0);
+		assert(((*retPointer)->left) == 0);
 		}
 		updateHeight(*retPointer);
 		updateHeight(*Parent);
@@ -382,7 +429,11 @@ void AVL::findInOrderSuccessor(AVLNode **retPointer, AVLNode **Parent)//Do last 
 		{
 			if (checkBalance((*Parent)->right) > 0)
 			{
+
+			std::cout << "Rotate right: "  << std::endl;
 				rotateRight(&(*Parent)->right, &(*Parent)->right->left);
+
+			std::cout << "Rotate Left: "  << std::endl;
 				rotateLeft(Parent, &(*Parent)->right);
 			}
 			else {
@@ -394,15 +445,22 @@ void AVL::findInOrderSuccessor(AVLNode **retPointer, AVLNode **Parent)//Do last 
 		{
 			if (checkBalance((*Parent)->left) < 0)
 			{
+
+			std::cout << "Rotate Left: "  << std::endl;
 				rotateLeft(&(*Parent)->left, &((*Parent)->left)->right);
+
+			std::cout << "Rotate Right: "  << std::endl;
 				rotateRight(Parent, &(*Parent)->left);
 			}
 			else {
+			std::cout << "Rotate Right: "  << std::endl;
 				rotateRight(Parent, &(*Parent)->left);
 			}
 		}
 	}
 	else {
+
+			std::cout << "Ptr Ret: "  << std::endl;
 		*retPointer = *Parent;
 	}
 }
@@ -420,6 +478,48 @@ void AVL::updateHeight(AVLNode* ptr) {
 		return;
 
 	ptr->height = 1 + std::max(ptr->left ? ptr->left->height : -1, ptr->right ? ptr->right->height : -1);
+}
+
+void AVL::rebalancePointers(AVLNode ** Parent, AVLNode ** Child)
+{
+	/*if (Child)
+	{
+		if(*Child)
+		{
+			//updateHeight(*Child);
+		}
+	}
+	if (Parent)
+	{
+		if(*Parent)
+		{
+		//updateHeight(*Parent);
+		int Balance = 0;//checkBalance(*Parent);
+		if (Balance < -1)
+		{
+			/*if (checkBalance((*Parent)->right) > 0)
+			{
+				//rotateRight(&(*Parent)->right, &((*Parent)->right)->left);
+				//rotateLeft(Parent, &(*Parent)->right);
+			}
+			else {
+				//rotateLeft(Parent, &(*Parent)->right);
+			}*/
+
+	/*	}
+		else if (Balance > 1)
+		{
+			/*if (checkBalance((*Parent)->left) < 0)
+			{
+				//rotateLeft(&(*Parent)->left, &((*Parent)->left)->right);
+				//rotateRight(Parent, &(*Parent)->left);
+			}
+			else {
+				//rotateRight(Parent, &(*Parent)->left);
+			}*/
+	//	}
+	//}
+	//}
 }
 
 void AVL::serialize(std::stringstream& s, AVLNode** NextValue)

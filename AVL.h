@@ -16,6 +16,8 @@ private:
 	void rotateLeft(AVLNode **, AVLNode **);
 	void rotateRight(AVLNode **, AVLNode **);
 	void findInOrderSuccessor(AVLNode **, AVLNode **Parent);
+	void rebalancePointers(AVLNode ** Parent, AVLNode ** Child);
+
 	//void doubleRotateLeft(AVLNode **, AVLNode *);
 	//	void doubleRotateRight(AVLNode **,AVLNode *);
 
